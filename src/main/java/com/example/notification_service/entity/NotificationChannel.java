@@ -1,0 +1,18 @@
+package com.example.notification_service.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Table(name = "notification_channels")
+@Getter
+@Setter
+public class NotificationChannel {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Short id;
+
+  @Column(unique = true, nullable = false)
+  private String code;
+}
