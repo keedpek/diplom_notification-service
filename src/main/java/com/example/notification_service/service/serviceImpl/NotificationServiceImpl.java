@@ -110,17 +110,20 @@ public class NotificationServiceImpl implements NotificationService {
     Notification notification = notificationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Уведомление не найдено"));
     notification.setIsRead(true);
-    notificationRepository.save(notification);
   }
 
   private String buildSlaWarningMessage(RequestSlaWarningEventDto e) {
-
-    String base = "По заявке \"" + e.getTitle() + "\" скоро истекает срок выполнения.";
+    StringBuilder sb = new StringBuilder();
+    sb.append("По заявке \"")
+            .append(e.getTitle())
+            .append("\" скоро истекает срок выполнения.");
 
     if (e.getMinutesLeft() != null) {
-      return base + " Осталось " + e.getMinutesLeft() + " минут.";
+      sb.append(" Осталось ")
+              .append(e.getMinutesLeft())
+              .append(" минут.");
     }
 
-    return base;
+    return sb.toString();
   }
 }

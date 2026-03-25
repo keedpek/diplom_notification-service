@@ -7,10 +7,10 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user_notification_settings")
 @Getter
 @Setter
 @IdClass(UserNotificationSettingsId.class)
+@Table(name = "user_notification_settings")
 public class UserNotificationSettings {
   @Id
   private UUID userId;

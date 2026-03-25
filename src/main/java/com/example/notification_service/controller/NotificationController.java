@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("api/v1/notifications")
-@RequiredArgsConstructor
 @Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("api/v1/notifications")
 public class NotificationController {
 
   private final NotificationService notificationService;
@@ -23,7 +23,7 @@ public class NotificationController {
     return notificationService.getUserNotifications(userId);
   }
 
-  @PostMapping("{id}/read")
+  @PatchMapping("{id}/read")
   public void readNotification(@PathVariable UUID id) {
     notificationService.markNotificationAsRead(id);
   }

@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "notification_channels")
 @Getter
 @Setter
+@Table(name = "notification_channels")
 public class NotificationChannel {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
