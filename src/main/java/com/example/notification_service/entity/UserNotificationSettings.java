@@ -1,14 +1,16 @@
 package com.example.notification_service.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @IdClass(UserNotificationSettingsId.class)
 @Table(name = "user_notification_settings")
 public class UserNotificationSettings {

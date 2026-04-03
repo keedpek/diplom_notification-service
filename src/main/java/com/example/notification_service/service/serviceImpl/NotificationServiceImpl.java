@@ -99,6 +99,9 @@ public class NotificationServiceImpl implements NotificationService {
 
   @Override
   public List<NotificationDto> getUserNotifications(UUID userId) {
+    if (userId == null) {
+      throw new IllegalArgumentException("Идентификатор пользователя обязателен");
+    }
     return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
             .map(notificationMapper::toDto)
             .collect(Collectors.toList());
