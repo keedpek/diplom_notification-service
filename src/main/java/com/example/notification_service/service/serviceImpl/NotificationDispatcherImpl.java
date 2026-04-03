@@ -6,10 +6,12 @@ import com.example.notification_service.repository.NotificationChannelRepository
 import com.example.notification_service.service.NotificationDispatcher;
 import com.example.notification_service.service.sender.NotificationSender;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationDispatcherImpl implements NotificationDispatcher {
@@ -21,6 +23,13 @@ public class NotificationDispatcherImpl implements NotificationDispatcher {
   @Override
   public void dispatch(Notification notification) {
     List<NotificationChannel> channels = channelService.getUserChannels(notification.getUserId());
+
+    log.debug(
+            "Отправка уведомления: userId={}, channels={}",
+            notification.getUserId(),
+            channels.size()
+    );
+
     sendToChannels(channels, notification);
   }
 
