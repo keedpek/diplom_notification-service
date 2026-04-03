@@ -14,6 +14,7 @@ import com.example.notification_service.service.NotificationDispatcher;
 import com.example.notification_service.service.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
@@ -32,6 +34,12 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   @Transactional
   public void notifyExecutor(RequestAssignedEventDto e) {
+    log.info(
+            "Уведомление о назначении: requestId={}, userId={}",
+            e.getRequestId(),
+            e.getAssignedUserId()
+    );
+
     Notification notification = Notification.builder()
             .userId(e.getAssignedUserId())
             .requestId(e.getRequestId())
@@ -49,6 +57,12 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   @Transactional
   public void notifyStatusChanged(RequestStatusChangedEventDto e) {
+    log.info(
+            "Уведомление об изменении статуса: requestId={}, status={}",
+            e.getRequestId(),
+            e.getStatus()
+    );
+
     Notification notification = Notification.builder()
             .userId(e.getUserId())
             .requestId(e.getRequestId())
@@ -66,6 +80,12 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   @Transactional
   public void notifySlaWarning(RequestSlaWarningEventDto e) {
+    log.info(
+            "SLA warning: requestId={}, minutesLeft={}",
+            e.getRequestId(),
+            e.getMinutesLeft()
+    );
+
     Notification notification = Notification.builder()
             .userId(e.getUserId())
             .requestId(e.getRequestId())
@@ -83,6 +103,8 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   @Transactional
   public void notifySlaViolation(RequestSlaViolationEventDto e) {
+    log.info("SLA violation: requestId={}", e.getRequestId());
+
     Notification notification = Notification.builder()
             .userId(e.getUserId())
             .requestId(e.getRequestId())
@@ -99,7 +121,10 @@ public class NotificationServiceImpl implements NotificationService {
 
   @Override
   public List<NotificationDto> getUserNotifications(UUID userId) {
+    log.debug("Получение уведомлений пользователя: userId={}", userId);
+
     if (userId == null) {
+      log.warn("Ошибка получения уведомлений: userId=null");
       throw new IllegalArgumentException("Идентификатор пользователя обязателен");
     }
     return notificationRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
@@ -110,8 +135,13 @@ public class NotificationServiceImpl implements NotificationService {
   @Override
   @Transactional
   public void markNotificationAsRead(UUID id) {
+    log.info("Отметка уведомления как прочитанного: id={}", id);
+
     Notification notification = notificationRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException("Уведомление не найдено"));
+            .orElseThrow(() -> {
+              log.warn("Уведомление не найдено: id={}", id);
+              return new NotFoundException("Уведомление не найдено");
+            });
     notification.setIsRead(true);
   }
 
