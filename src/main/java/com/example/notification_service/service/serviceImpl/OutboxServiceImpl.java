@@ -30,7 +30,6 @@ public class OutboxServiceImpl implements OutboxService {
               .payload(objectMapper.valueToTree(notification))
               .status(NotificationOutboxStatus.NEW)
               .retryCount(0)
-              .locked(false)
               .createdAt(LocalDateTime.now())
               .build();
       notificationOutboxRepository.save(event);

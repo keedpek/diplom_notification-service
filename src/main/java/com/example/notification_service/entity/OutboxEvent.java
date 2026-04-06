@@ -34,8 +34,6 @@ public class OutboxEvent {
 
   private LocalDateTime nextRetryAt;
 
-  private boolean locked;
-
   @Column(nullable = false)
   private LocalDateTime createdAt;
 }

@@ -13,18 +13,16 @@ public interface NotificationOutboxRepository extends JpaRepository<OutboxEvent,
   @Modifying
   @Query(value = """
     UPDATE notification_outbox o
-    SET status = 'PROCESSING',
-        locked = true
+    SET status = 'PROCESSING'
     WHERE id IN (
         SELECT id FROM notification_outbox
         WHERE status = 'NEW'
             AND (next_retry_at IS NULL OR next_retry_at <= now())
-            AND locked = false
         ORDER BY created_at
-        LIMIT 50
+        LIMIT :limit
         FOR UPDATE SKIP LOCKED
     )
     RETURNING *
   """, nativeQuery = true)
-  List<OutboxEvent> lockBatch();
+  List<OutboxEvent> lockBatch(int limit);
 }
