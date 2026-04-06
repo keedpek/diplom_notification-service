@@ -1,6 +1,6 @@
 package com.example.notification_service.entity;
 
-import com.example.notification_service.enums.NotificationTypes;
+import com.example.notification_service.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,7 +28,7 @@ public class Notification {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private NotificationTypes type;
+  private NotificationType type;
 
   @Column(nullable = false)
   private String title;

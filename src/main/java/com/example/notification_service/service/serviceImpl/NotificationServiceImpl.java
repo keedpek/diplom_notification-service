@@ -6,12 +6,12 @@ import com.example.notification_service.DTO.events.RequestSlaViolationEventDto;
 import com.example.notification_service.DTO.events.RequestSlaWarningEventDto;
 import com.example.notification_service.DTO.events.RequestStatusChangedEventDto;
 import com.example.notification_service.entity.Notification;
-import com.example.notification_service.enums.NotificationTypes;
+import com.example.notification_service.enums.NotificationType;
 import com.example.notification_service.exceptions.NotFoundException;
 import com.example.notification_service.mapper.NotificationMapper;
 import com.example.notification_service.repository.NotificationRepository;
-import com.example.notification_service.service.NotificationDispatcher;
 import com.example.notification_service.service.NotificationService;
+import com.example.notification_service.service.OutboxService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class NotificationServiceImpl implements NotificationService {
 
   private final NotificationRepository notificationRepository;
   private final NotificationMapper notificationMapper;
-  private final NotificationDispatcher dispatcher;
+  private final OutboxService outboxService;
 
   @Override
   @Transactional
@@ -43,7 +43,7 @@ public class NotificationServiceImpl implements NotificationService {
     Notification notification = Notification.builder()
             .userId(e.getAssignedUserId())
             .requestId(e.getRequestId())
-            .type(NotificationTypes.ASSIGNED)
+            .type(NotificationType.ASSIGNED)
             .title("Новая заявка!")
             .message("Вам назначена заявка: " + e.getTitle())
             .isRead(false)
@@ -51,7 +51,7 @@ public class NotificationServiceImpl implements NotificationService {
             .build();
 
     notificationRepository.save(notification);
-    dispatcher.dispatch(notification);
+    outboxService.save(notification);
   }
 
   @Override
@@ -66,7 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
     Notification notification = Notification.builder()
             .userId(e.getUserId())
             .requestId(e.getRequestId())
-            .type(NotificationTypes.STATUS_CHANGED)
+            .type(NotificationType.STATUS_CHANGED)
             .title("Статус заявки изменен")
             .message("Статус изменен на: " + e.getStatus())
             .isRead(false)
@@ -74,7 +74,7 @@ public class NotificationServiceImpl implements NotificationService {
             .build();
 
     notificationRepository.save(notification);
-    dispatcher.dispatch(notification);
+    outboxService.save(notification);
   }
 
   @Override
@@ -89,7 +89,7 @@ public class NotificationServiceImpl implements NotificationService {
     Notification notification = Notification.builder()
             .userId(e.getUserId())
             .requestId(e.getRequestId())
-            .type(NotificationTypes.SLA_WARNING)
+            .type(NotificationType.SLA_WARNING)
             .title("Приближается дедлайн")
             .message(buildSlaWarningMessage(e))
             .isRead(false)
@@ -97,7 +97,7 @@ public class NotificationServiceImpl implements NotificationService {
             .build();
 
     notificationRepository.save(notification);
-    dispatcher.dispatchCritical(notification);
+    outboxService.save(notification);
   }
 
   @Override
@@ -108,7 +108,7 @@ public class NotificationServiceImpl implements NotificationService {
     Notification notification = Notification.builder()
             .userId(e.getUserId())
             .requestId(e.getRequestId())
-            .type(NotificationTypes.SLA_VIOLATION)
+            .type(NotificationType.SLA_VIOLATION)
             .title("Приближается дедлайн")
             .message("Срок выполнения заявки \"" + e.getTitle() + "\" нарушен!")
             .isRead(false)
@@ -116,7 +116,7 @@ public class NotificationServiceImpl implements NotificationService {
             .build();
 
     notificationRepository.save(notification);
-    dispatcher.dispatchCritical(notification);
+    outboxService.save(notification);
   }
 
   @Override

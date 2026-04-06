@@ -1,6 +1,6 @@
 package com.example.notification_service.enums;
 
-public enum NotificationTypes {
+public enum NotificationType {
   ASSIGNED,
   STATUS_CHANGED,
   SLA_WARNING,
