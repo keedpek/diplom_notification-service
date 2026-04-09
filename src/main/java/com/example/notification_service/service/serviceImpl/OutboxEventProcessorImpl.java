@@ -5,11 +5,11 @@ import com.example.notification_service.entity.Notification;
 import com.example.notification_service.entity.OutboxEvent;
 import com.example.notification_service.enums.NotificationOutboxStatus;
 import com.example.notification_service.repository.NotificationDeliveryLogRepository;
-import com.example.notification_service.repository.NotificationOutboxRepository;
 import com.example.notification_service.service.NotificationDispatcher;
 import com.example.notification_service.service.OutboxEventProcessor;
 import com.example.notification_service.util.OutboxConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,22 +23,17 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class OutboxEventProcessorImpl implements OutboxEventProcessor {
 
+  private final EntityManager entityManager;
   private final NotificationDispatcher notificationDispatcher;
-  private final NotificationOutboxRepository notificationOutboxRepository;
   private final NotificationDeliveryLogRepository deliveryLogRepository;
   private final ObjectMapper objectMapper;
 
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void process(OutboxEvent unmanagedEvent) {
-    OutboxEvent event = null;
-    try {
-      event = notificationOutboxRepository.findById(unmanagedEvent.getId())
-              .orElseThrow(() -> {
-                log.warn("Событие не найдено: id={}", unmanagedEvent.getId());
-                return new IllegalArgumentException("Событие не найдено");
-              });
+    OutboxEvent event = entityManager.merge(unmanagedEvent);
 
+    try {
       Notification notification = objectMapper.convertValue(event.getPayload(), Notification.class);
 
       if (deliveryLogRepository.existsById(notification.getId())) {
