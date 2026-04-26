@@ -20,7 +20,6 @@ import java.util.UUID;
 public class OutboxEvent {
 
   @Id
-  @GeneratedValue
   private UUID id;
 
   @JdbcTypeCode(SqlTypes.JSON)
