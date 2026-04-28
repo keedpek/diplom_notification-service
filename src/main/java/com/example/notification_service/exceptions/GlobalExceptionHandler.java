@@ -87,4 +87,18 @@ public class GlobalExceptionHandler {
             .path(request.getRequestURI())
             .build();
   }
+
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  @ExceptionHandler(OutboxPersistenceException.class)
+  public ErrorResponseDto handleOutboxPersistenceException(
+          OutboxPersistenceException ex,
+          HttpServletRequest request
+  ) {
+    return ErrorResponseDto.builder()
+            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+            .message(ex.getMessage())
+            .path(request.getRequestURI())
+            .build();
+  }
 }
