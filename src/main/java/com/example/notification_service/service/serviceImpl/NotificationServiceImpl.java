@@ -8,7 +8,7 @@ import com.example.notification_service.mapper.NotificationMapper;
 import com.example.notification_service.messaging.event.payload.*;
 import com.example.notification_service.repository.NotificationRepository;
 import com.example.notification_service.service.NotificationService;
-import com.example.notification_service.service.OutboxService;
+import com.example.notification_service.service.outbox.OutboxService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
