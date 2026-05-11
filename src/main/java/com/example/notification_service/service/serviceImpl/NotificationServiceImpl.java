@@ -1,17 +1,14 @@
 package com.example.notification_service.service.serviceImpl;
 
 import com.example.notification_service.DTO.NotificationDto;
-import com.example.notification_service.DTO.events.RequestAssignedEventDto;
-import com.example.notification_service.DTO.events.RequestSlaViolationEventDto;
-import com.example.notification_service.DTO.events.RequestSlaWarningEventDto;
-import com.example.notification_service.DTO.events.RequestStatusChangedEventDto;
 import com.example.notification_service.entity.Notification;
 import com.example.notification_service.enums.NotificationType;
 import com.example.notification_service.exceptions.NotFoundException;
 import com.example.notification_service.mapper.NotificationMapper;
+import com.example.notification_service.messaging.event.payload.*;
 import com.example.notification_service.repository.NotificationRepository;
 import com.example.notification_service.service.NotificationService;
-import com.example.notification_service.service.OutboxService;
+import com.example.notification_service.service.outbox.OutboxService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +27,52 @@ public class NotificationServiceImpl implements NotificationService {
   private final NotificationRepository notificationRepository;
   private final NotificationMapper notificationMapper;
   private final OutboxService outboxService;
+
+  @Override
+  @Transactional
+  public void notifyCreatorOnRequestCreate(RequestCreatedEventDto e) {
+    log.info(
+            "Уведомление о создании заявки: requestId={}, userId={}",
+            e.getRequestId(),
+            e.getCreatedByUserId()
+    );
+
+    Notification notification = Notification.builder()
+            .userId(e.getCreatedByUserId())
+            .requestId(e.getRequestId())
+            .type(NotificationType.CREATED)
+            .title("Заявка создана!")
+            .message("Ваша заявка была создана: " + e.getTitle())
+            .isRead(false)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    notificationRepository.save(notification);
+    outboxService.save(notification);
+  }
+
+  @Override
+  @Transactional
+  public void notifyCreatorOnRequestAssigned(RequestAssignedEventDto e) {
+    log.info(
+            "Уведомление создателя о назначении: requestId={}, userId={}",
+            e.getRequestId(),
+            e.getCreatedByUserId()
+    );
+
+    Notification notification = Notification.builder()
+            .userId(e.getCreatedByUserId())
+            .requestId(e.getRequestId())
+            .type(NotificationType.ASSIGNED)
+            .title("Назначение заявки!")
+            .message("Созданная вами заявка была назначена исполнителю: " + e.getTitle())
+            .isRead(false)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    notificationRepository.save(notification);
+    outboxService.save(notification);
+  }
 
   @Override
   @Transactional
@@ -56,7 +99,7 @@ public class NotificationServiceImpl implements NotificationService {
 
   @Override
   @Transactional
-  public void notifyStatusChanged(RequestStatusChangedEventDto e) {
+  public void notifyStatusChanged(UUID userId, RequestStatusChangedEventDto e) {
     log.info(
             "Уведомление об изменении статуса: requestId={}, status={}",
             e.getRequestId(),
@@ -64,7 +107,7 @@ public class NotificationServiceImpl implements NotificationService {
     );
 
     Notification notification = Notification.builder()
-            .userId(e.getUserId())
+            .userId(userId)
             .requestId(e.getRequestId())
             .type(NotificationType.STATUS_CHANGED)
             .title("Статус заявки изменен")

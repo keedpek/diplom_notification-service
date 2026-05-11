@@ -1,10 +1,11 @@
-package com.example.notification_service.service.serviceImpl;
+package com.example.notification_service.service.outbox.impl;
 
 import com.example.notification_service.entity.Notification;
 import com.example.notification_service.entity.OutboxEvent;
 import com.example.notification_service.enums.NotificationOutboxStatus;
+import com.example.notification_service.exceptions.OutboxPersistenceException;
 import com.example.notification_service.repository.NotificationOutboxRepository;
-import com.example.notification_service.service.OutboxService;
+import com.example.notification_service.service.outbox.OutboxService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class OutboxServiceImpl implements OutboxService {
       notificationOutboxRepository.save(event);
     } catch (Exception e) {
       log.error("Ошибка при сохранении события в outbox: id={}, message={}", notification.getId(), e.getMessage());
-      throw new RuntimeException(e);
+      throw new OutboxPersistenceException(e.getMessage());
     }
   }
 }

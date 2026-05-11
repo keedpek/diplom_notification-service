@@ -1,4 +1,4 @@
-package com.example.notification_service.DTO.events;
+package com.example.notification_service.messaging.event.payload;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -6,19 +6,21 @@ import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class RequestStatusChangedEventDto {
+public class RequestStatusChangedEventDto implements EventDtoPayload{
 
   @NotNull(message = "Идентификатор заявки обязателен")
   private UUID requestId;
 
-  @NotNull(message = "Идентификатор пользователя обязателен")
-  private UUID userId;
+  private List<UUID> userIds;
 
   @NotBlank(message = "Статус обязателен") 
   @Pattern(

@@ -1,6 +1,7 @@
 package com.example.notification_service.entity;
 
-import com.example.notification_service.enums.NotificationOutboxStatus;
+import com.example.notification_service.enums.EventType;
+import com.example.notification_service.enums.NotificationInboxStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,23 +17,27 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "notification_outbox")
-public class OutboxEvent {
+@Table(name = "notification_inbox")
+public class InboxEvent {
 
   @Id
-  private UUID id;
+  @Column(nullable = false, unique = true)
+  private UUID eventId;
+
+  @Column(nullable = false)
+  @Enumerated(EnumType.STRING)
+  private EventType eventType;
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(columnDefinition = "jsonb", nullable = false)
   private JsonNode payload;
 
+  @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private NotificationOutboxStatus status;
-
-  private int retryCount;
-
-  private LocalDateTime nextRetryAt;
+  private NotificationInboxStatus status;
 
   @Column(nullable = false)
   private LocalDateTime createdAt;
+
+  private LocalDateTime processedAt;
 }

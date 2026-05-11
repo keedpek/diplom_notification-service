@@ -1,4 +1,4 @@
-package com.example.notification_service.service.serviceImpl;
+package com.example.notification_service.service.outbox.impl;
 
 import com.example.notification_service.entity.DeliveryLog;
 import com.example.notification_service.entity.Notification;
@@ -6,8 +6,8 @@ import com.example.notification_service.entity.OutboxEvent;
 import com.example.notification_service.enums.NotificationOutboxStatus;
 import com.example.notification_service.repository.NotificationDeliveryLogRepository;
 import com.example.notification_service.service.NotificationDispatcher;
-import com.example.notification_service.service.OutboxEventProcessor;
-import com.example.notification_service.util.OutboxConstants;
+import com.example.notification_service.config.OutboxConfig;
+import com.example.notification_service.service.outbox.OutboxEventProcessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,7 @@ public class OutboxEventProcessorImpl implements OutboxEventProcessor {
   private final NotificationDispatcher notificationDispatcher;
   private final NotificationDeliveryLogRepository deliveryLogRepository;
   private final ObjectMapper objectMapper;
+  private final OutboxConfig outboxConfig;
 
   @Override
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -68,7 +69,7 @@ public class OutboxEventProcessorImpl implements OutboxEventProcessor {
   private void handleFailure(OutboxEvent event) {
     int retries = event.getRetryCount() + 1;
 
-    if (retries > OutboxConstants.MAX_RETRIES) {
+    if (retries > outboxConfig.getMaxRetries()) {
       event.setStatus(NotificationOutboxStatus.DEAD);
     } else {
       event.setStatus(NotificationOutboxStatus.NEW);

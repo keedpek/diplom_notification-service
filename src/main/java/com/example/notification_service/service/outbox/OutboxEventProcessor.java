@@ -1,4 +1,4 @@
-package com.example.notification_service.service;
+package com.example.notification_service.service.outbox;
 
 import com.example.notification_service.entity.OutboxEvent;
 
